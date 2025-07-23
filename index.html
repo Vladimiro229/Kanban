@@ -2,120 +2,84 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>На поповнення</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Форма заявки</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 20px;
+    body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+    h2 { text-align: center; }
+    form { background: #fff; padding: 20px; border-radius: 8px; max-width: 500px; margin: 0 auto; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { display: block; margin-top: 10px; font-weight: bold; }
+    input, select, textarea {
+      width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
+    button {
+      margin-top: 20px; padding: 10px 20px; background: #28a745; color: #fff;
+      border: none; border-radius: 4px; cursor: pointer; font-weight: bold;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-    }
-    th, td {
-      padding: 8px 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background: #f1f1f1;
-    }
-    .status-available {
-      color: green;
-      font-weight: bold;
-    }
-    .status-warning {
-      color: orange;
-      font-weight: bold;
-    }
-    .status-empty {
-      color: red;
-      font-weight: bold;
-    }
-    .status-inactive {
-      color: #888;
-      font-style: italic;
-    }
+    button:hover { background: #218838; }
   </style>
 </head>
 <body>
-  <h1>Товари на поповнення</h1>
-  <table id="data-table">
-    <thead>
-      <tr>
-        <th>Відділ</th>
-        <th>Категорія</th>
-        <th>Назва товару</th>
-        <th>Одиниця</th>
-        <th>Статус</th>
-        <th>Кількість</th>
-        <th>Мін. запас</th>
-        <th>Останнє оновлення</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <h2>Заявка на оновлення залишків</h2>
+  <form id="requestForm">
+    <label>ПІБ</label>
+    <input type="text" name="name" required>
+
+    <label>Підрозділ</label>
+    <select name="department" required>
+      <option value="">Оберіть...</option>
+      <option>Офіс</option>
+      <option>Склад</option>
+      <option>Львів</option>
+      <option>Виробництво</option>
+    </select>
+
+    <label>Категорія</label>
+    <select name="category" required>
+      <option value="">Оберіть...</option>
+      <option>Канцтовари</option>
+      <option>Пакувальні матеріали</option>
+      <option>Господарчі засоби</option>
+      <option>Продукти загального користування</option>
+    </select>
+
+    <label>Назва товару</label>
+    <input type="text" name="item" required>
+
+    <label>Кількість</label>
+    <input type="number" name="quantity" required min="0">
+
+    <label>Коментар</label>
+    <textarea name="comment" rows="3"></textarea>
+
+    <button type="submit">Відправити</button>
+  </form>
 
   <script>
-    const sheetId = "1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA";
-    const apiKey = "AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw";
-    const sheetName = "На поповнення";
-    const query = encodeURIComponent("SELECT A,B,C,D,E,F,G,H");
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:H1000?key=${apiKey}`;
+    document.getElementById("requestForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        department: form.department.value,
+        category: form.category.value,
+        item: form.item.value,
+        quantity: form.quantity.value,
+        comment: form.comment.value
+      };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const filterName = urlParams.get("назва");
-
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        const rows = data.values || [];
-        const tableBody = document.querySelector("#data-table tbody");
-        tableBody.innerHTML = "";
-
-        rows.forEach(row => {
-          const [viddil, kat, name, unit, status, qty, minQty, updated] = row;
-
-          if (filterName && !name.toLowerCase().includes(filterName.toLowerCase())) return;
-
-          const tr = document.createElement("tr");
-
-          const td = (text) => {
-            const td = document.createElement("td");
-            td.textContent = text || "";
-            return td;
-          };
-
-          const statusClass = status.includes("✅") ? "status-available"
-                            : status.includes("⚠️") ? "status-warning"
-                            : status.includes("❌") ? "status-empty"
-                            : "status-inactive";
-
-          const statusTd = td(status);
-          statusTd.className = statusClass;
-
-          tr.append(td(viddil));
-          tr.append(td(kat));
-          tr.append(td(name));
-          tr.append(td(unit));
-          tr.append(statusTd);
-          tr.append(td(qty));
-          tr.append(td(minQty));
-          tr.append(td(updated));
-
-          tableBody.appendChild(tr);
-        });
-      });
+      fetch("https://script.google.com/macros/s/ТУТ_ТВОЄ_WEBAPP_URL/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert(msg);
+        form.reset();
+      })
+      .catch(() => alert("Помилка при відправці."));
+    });
   </script>
 </body>
 </html>
-
