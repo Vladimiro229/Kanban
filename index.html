@@ -1,1 +1,121 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>На поповнення</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    th, td {
+      padding: 8px 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background: #f1f1f1;
+    }
+    .status-available {
+      color: green;
+      font-weight: bold;
+    }
+    .status-warning {
+      color: orange;
+      font-weight: bold;
+    }
+    .status-empty {
+      color: red;
+      font-weight: bold;
+    }
+    .status-inactive {
+      color: #888;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <h1>Товари на поповнення</h1>
+  <table id="data-table">
+    <thead>
+      <tr>
+        <th>Відділ</th>
+        <th>Категорія</th>
+        <th>Назва товару</th>
+        <th>Одиниця</th>
+        <th>Статус</th>
+        <th>Кількість</th>
+        <th>Мін. запас</th>
+        <th>Останнє оновлення</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const sheetId = "1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA";
+    const apiKey = "AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw";
+    const sheetName = "На поповнення";
+    const query = encodeURIComponent("SELECT A,B,C,D,E,F,G,H");
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:H1000?key=${apiKey}`;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const filterName = urlParams.get("назва");
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        const rows = data.values || [];
+        const tableBody = document.querySelector("#data-table tbody");
+        tableBody.innerHTML = "";
+
+        rows.forEach(row => {
+          const [viddil, kat, name, unit, status, qty, minQty, updated] = row;
+
+          if (filterName && !name.toLowerCase().includes(filterName.toLowerCase())) return;
+
+          const tr = document.createElement("tr");
+
+          const td = (text) => {
+            const td = document.createElement("td");
+            td.textContent = text || "";
+            return td;
+          };
+
+          const statusClass = status.includes("✅") ? "status-available"
+                            : status.includes("⚠️") ? "status-warning"
+                            : status.includes("❌") ? "status-empty"
+                            : "status-inactive";
+
+          const statusTd = td(status);
+          statusTd.className = statusClass;
+
+          tr.append(td(viddil));
+          tr.append(td(kat));
+          tr.append(td(name));
+          tr.append(td(unit));
+          tr.append(statusTd);
+          tr.append(td(qty));
+          tr.append(td(minQty));
+          tr.append(td(updated));
+
+          tableBody.appendChild(tr);
+        });
+      });
+  </script>
+</body>
+</html>
 
