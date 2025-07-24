@@ -1,135 +1,85 @@
+
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Інвентаризація</title>
   <style>
     body {
-      margin: 0;
+      background: #121212;
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      background-color: #f3f3f3;
-      padding: 20px;
+      margin: 0;
+      padding: 30px 20px;
     }
-    h2 {
+    .inventory-card {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 700px;
+      margin: auto;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+    h1 {
       text-align: center;
-      color: #333;
+      margin-bottom: 30px;
+      font-size: 24px;
     }
-    .form-section {
-      max-width: 600px;
-      margin: 0 auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    select, input[type=number], button {
+    select, input {
       width: 100%;
       padding: 10px;
-      margin-top: 10px;
-      border: 1px solid #ccc;
       border-radius: 8px;
-      font-size: 16px;
+      margin-bottom: 20px;
+      border: none;
+      font-size: 14px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
+      color: white;
     }
     th, td {
-      padding: 10px;
+      padding: 12px;
       text-align: left;
-      border-bottom: 1px solid #ccc;
     }
-    button {
-      background-color: #4CAF50;
+    th {
+      border-bottom: 2px solid #333;
+    }
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
       color: white;
-      font-weight: bold;
       cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    @media (max-width: 600px) {
-      .form-section {
-        padding: 10px;
-      }
-      table, th, td {
-        font-size: 14px;
-      }
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="form-section">
-    <h2>Інвентаризація</h2>
-    <label for="department">Оберіть відділ:</label>
-    <select id="department">
-      <option value="Офіс">Офіс</option>
-      <option value="Склад">Склад</option>
-      <option value="Львів">Львів</option>
-      <option value="Виробництво">Виробництво</option>
+  <div class="inventory-card">
+    <h1>Інвентаризація</h1>
+    <select>
+      <option>Офіс</option>
+      <option>Склад</option>
+      <option>Львів</option>
+      <option>Виробництво</option>
     </select>
-    <button onclick="loadInventory()">Завантажити товари</button>
-    <form id="inventoryForm" onsubmit="submitInventory(event)">
-      <table id="inventoryTable"></table>
-      <button type="submit" style="margin-top:20px">Надіслати зміни</button>
-    </form>
+    <button class="submit-btn">Завантажити товари</button>
+    <table>
+      <thead>
+        <tr><th>Назва товару</th><th>Кількість</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Папір А4</td><td><input type="number" min="0"></td></tr>
+        <tr><td>Ручка</td><td><input type="number" min="0"></td></tr>
+      </tbody>
+    </table>
   </div>
-
-  <script>
-    const SHEET_API_KEY = "AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw";
-    const SHEET_ID = "1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA";
-    const ENDPOINT = "https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec";
-
-    async function loadInventory() {
-      const department = document.getElementById('department').value;
-      const table = document.getElementById('inventoryTable');
-      table.innerHTML = '<tr><th>Назва товару</th><th>Кількість</th></tr>';
-
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${department}?key=${SHEET_API_KEY}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      const rows = data.values;
-
-      for (let i = 1; i < rows.length; i++) {
-        const name = rows[i][1];
-        const qty = rows[i][4];
-        const row = `<tr>
-          <td>${name}<input type="hidden" name="name[]" value="${name}" /></td>
-          <td><input type="number" name="quantity[]" value="${qty}" required /></td>
-        </tr>`;
-        table.insertAdjacentHTML('beforeend', row);
-      }
-    }
-
-    async function submitInventory(e) {
-      e.preventDefault();
-      const form = document.getElementById('inventoryForm');
-      const department = document.getElementById('department').value;
-      const formData = new FormData(form);
-
-      const names = formData.getAll("name[]");
-      const quantities = formData.getAll("quantity[]");
-
-      const payload = names.map((name, i) => ({
-        department,
-        name,
-        quantity: quantities[i]
-      }));
-
-      const response = await fetch(ENDPOINT, {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'inventory_update',
-          data: payload
-        }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const result = await response.text();
-      alert(result);
-    }
-  </script>
 </body>
 </html>
