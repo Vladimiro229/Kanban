@@ -1,73 +1,70 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Система забезпечення</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Вибір дії</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #111;
-      color: #fff;
+      background: #1a1a1a;
+      color: white;
+      margin: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
+      text-align: center;
+      padding: 20px;
     }
     h1 {
+      margin-bottom: 40px;
       font-size: 28px;
-      margin-bottom: 30px;
     }
-    .button-container {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      width: 90%;
+    .card {
+      background: #2b2b2b;
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
       max-width: 400px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-    button {
-      padding: 18px;
+    .button {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 15px 0;
+      border: none;
+      border-radius: 10px;
       font-size: 18px;
       font-weight: 600;
-      border: none;
-      border-radius: 12px;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.3s;
+      transition: transform 0.2s;
+      color: white;
+    }
+    .button:hover {
+      transform: scale(1.03);
     }
     .request {
-      background-color: #007BFF;
-      color: white;
-    }
-    .request:hover {
-      background-color: #0060c0;
+      background: #007f5f;
     }
     .inventory {
-      background-color: #28a745;
-      color: white;
+      background: #3a86ff;
     }
-    .inventory:hover {
-      background-color: #1e7e34;
-    }
-    .icon {
-      margin-right: 10px;
-      font-size: 22px;
+    @media (max-width: 500px) {
+      h1 { font-size: 22px; }
+      .button { font-size: 16px; }
     }
   </style>
 </head>
 <body>
-  <h1>📦 Система забезпечення</h1>
-  <div class="button-container">
-    <button class="request" onclick="window.location.href='request.html'">
-      <span class="icon">📝</span> Запит на забезпечення
-    </button>
-    <button class="inventory" onclick="window.location.href='inventory.html'">
-      <span class="icon">📋</span> Інвентаризація
-    </button>
+  <div class="card">
+    <h1>🚚 Виберіть дію</h1>
+    <button class="button request" onclick="location.href='request.html'">📄 Запит на забезпечення</button>
+    <button class="button inventory" onclick="location.href='inventory.html'">📊 Інвентаризація</button>
   </div>
 </body>
 </html>
+
