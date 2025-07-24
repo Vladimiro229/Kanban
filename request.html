@@ -1,0 +1,102 @@
+<!-- request.html -->
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Запит на забезпечення</title>
+  <style>
+    body {
+      background: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 20px;
+      width: 100%;
+      background: #28a745;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>🚚 Запит на забезпечення</h2>
+    <form id="requestForm">
+      <label>👤 ПІБ</label>
+      <input name="name" required />
+      <label>📅 Відділ</label>
+      <select name="department" required>
+        <option>Офіс</option>
+        <option>Склад</option>
+        <option>Львів</option>
+        <option>Виробництво</option>
+      </select>
+      <label>📆 Категорія</label>
+      <input name="category" required />
+      <label>🔨 Назва товару</label>
+      <input name="product" required />
+      <label>📊 Кількість</label>
+      <input name="qty" type="number" required />
+      <label>📃 Тип заявки</label>
+      <select name="type" required>
+        <option>Надходження</option>
+        <option>Видача</option>
+      </select>
+      <label>💬 Коментар</label>
+      <textarea name="comment"></textarea>
+      <button type="submit">📤 Надіслати запит</button>
+    </form>
+  </div>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec';
+    const form = document.getElementById('requestForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form).entries());
+      fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        mode: 'no-cors'
+      });
+      form.reset();
+      alert('Спасибі! Запит надіслано.');
+    });
+  </script>
+</body>
+</html>
