@@ -1,4 +1,5 @@
-<!-- index.html -->
+
+
 <!DOCTYPE html>
 <html lang="uk">
 <head>
@@ -7,64 +8,52 @@
   <title>Вибір дії</title>
   <style>
     body {
+      background: #121212;
+      color: #fff;
       font-family: 'Segoe UI', sans-serif;
-      background: #1a1a1a;
-      color: white;
       margin: 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      text-align: center;
-      padding: 20px;
-    }
-    h1 {
-      margin-bottom: 40px;
-      font-size: 28px;
     }
     .card {
-      background: #2b2b2b;
-      border-radius: 16px;
-      padding: 30px;
-      width: 100%;
+      background: #1e1e1e;
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 90%;
       max-width: 400px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-    .button {
+    h1 {
+      margin-bottom: 30px;
+      font-size: 24px;
+    }
+    .btn {
       display: block;
-      width: 100%;
-      padding: 15px;
       margin: 15px 0;
+      padding: 14px;
       border: none;
       border-radius: 10px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 600;
-      cursor: pointer;
-      transition: transform 0.2s;
       color: white;
+      cursor: pointer;
     }
-    .button:hover {
-      transform: scale(1.03);
+    .btn-green {
+      background: linear-gradient(135deg, #28a745, #218838);
     }
-    .request {
-      background: #007f5f;
-    }
-    .inventory {
-      background: #3a86ff;
-    }
-    @media (max-width: 500px) {
-      h1 { font-size: 22px; }
-      .button { font-size: 16px; }
+    .btn-blue {
+      background: linear-gradient(135deg, #007bff, #0056b3);
     }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>🚚 Виберіть дію</h1>
-    <button class="button request" onclick="location.href='request.html'">📄 Запит на забезпечення</button>
-    <button class="button inventory" onclick="location.href='inventory.html'">📊 Інвентаризація</button>
+    <a href="request.html"><button class="btn btn-green">📄 Запит на забезпечення</button></a>
+    <a href="inventory.html"><button class="btn btn-blue">📊 Інвентаризація</button></a>
   </div>
 </body>
 </html>
-
