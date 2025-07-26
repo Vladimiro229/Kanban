@@ -1,150 +1,150 @@
-
-
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Запит на забезпечення</title>
   <style>
     body {
-      background: #121212;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 30px 20px;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #0f0f0f;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
     }
-    .form-card {
-      background: #1e1e1e;
-      padding: 30px;
+
+    .form-box {
+      background-color: #1c1c1c;
       border-radius: 20px;
-      max-width: 600px;
-      margin: auto;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      font-size: 24px;
-    }
-    .form-row {
-      display: flex;
-      gap: 10px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-    }
-    input, select, textarea {
-      padding: 10px;
-      border-radius: 8px;
-      border: none;
-      outline: none;
-      font-size: 14px;
-    }
-    .submit-btn {
+      padding: 30px;
+      max-width: 480px;
       width: 100%;
-      padding: 14px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 22px;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #28a745, #218838);
       border: none;
+      background-color: #2c2c2c;
+      color: #fff;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #bbb;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 25px;
+      padding: 14px;
       font-size: 16px;
-      font-weight: 600;
-      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
       cursor: pointer;
-      margin-top: 10px;
+      background: linear-gradient(90deg, #4caf50, #66bb6a);
+      color: white;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 12px rgba(255,255,255,0.2);
+    }
+
+    @media(max-width: 500px) {
+      h2 { font-size: 20px; }
+      .form-box { padding: 25px 20px; }
     }
   </style>
 </head>
 <body>
-  <div class="form-card">
-    <h1>🚚 Запит на забезпечення</h1>
-    <form>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Прізвище</label>
-          <input type="text" placeholder="Іванов" required>
-        </div>
-        <div class="form-group">
-          <label>Імʼя</label>
-          <input type="text" placeholder="Іван" required>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Відділ</label>
-        <select>
-          <option>Офіс</option>
-          <option>Склад</option>
-          <option>Львів</option>
-          <option>Виробництво</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Категорія</label>
-        <select id="categorySelect" required>
-          <option value="">Оберіть категорію</option>
-          <option>Канцтовари</option>
-          <option>Господарчі засоби</option>
-          <option>Продукти загального користування</option>
-          <option>Пакувальні матеріали</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Назва товару</label>
-        <input list="productList" id="productInput" placeholder="Наприклад: Папір А4" required>
-        <datalist id="productList"></datalist>
-      </div>
-      <div class="form-group">
-        <label>Кількість</label>
-        <input type="number" min="1" required>
-      </div>
-      <div class="form-group">
-        <label>Тип заявки</label>
-        <select>
-          <option>Надходження</option>
-          <option>Видача</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Коментар</label>
-        <textarea rows="3" placeholder="Необов’язково"></textarea>
-      </div>
-      <button class="submit-btn" type="submit">📬 Надіслати запит</button>
-    </form>
-  </div>
+  <form class="form-box" onsubmit="handleSubmit(event)">
+    <h2>📄 Запит на забезпечення</h2>
+
+    <label for="lastName">Прізвище</label>
+    <input type="text" id="lastName" placeholder="Іванов" required>
+
+    <label for="firstName">Ім’я</label>
+    <input type="text" id="firstName" placeholder="Іван" required>
+
+    <label for="department">Відділ</label>
+    <select id="department" required>
+      <option value="">Оберіть відділ</option>
+      <option>ОФІС</option>
+      <option>ЛЬВІВ</option>
+      <option>СКЛАД</option>
+      <option>ВИРОБНИЦТВО</option>
+    </select>
+
+    <label for="category">Категорія</label>
+    <select id="category" required>
+      <option value="">Оберіть категорію</option>
+      <option>Канцтовари</option>
+      <option>Господарчі засоби</option>
+      <option>Продукти загального користування</option>
+      <option>Пакувальні матеріали</option>
+    </select>
+
+    <label for="itemName">Назва товару</label>
+    <input type="text" id="itemName" placeholder="Папір А4" required>
+
+    <label for="quantity">Кількість</label>
+    <input type="number" id="quantity" min="1" placeholder="Наприклад, 5" required>
+
+    <label for="comment">Коментар</label>
+    <textarea id="comment" placeholder="Додаткові деталі (необов’язково)"></textarea>
+
+    <button type="submit" class="btn">📬 Надіслати запит</button>
+  </form>
 
   <script>
-    const apiKey = "AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw";
-    const sheetId = "1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA";
-    const sheetName = "Склад забезпечення";
-    const categorySelect = document.getElementById("categorySelect");
-    const productList = document.getElementById("productList");
+    function handleSubmit(e) {
+      e.preventDefault();
+      const data = {
+        lastName: document.getElementById('lastName').value,
+        firstName: document.getElementById('firstName').value,
+        department: document.getElementById('department').value,
+        category: document.getElementById('category').value,
+        itemName: document.getElementById('itemName').value,
+        quantity: document.getElementById('quantity').value,
+        comment: document.getElementById('comment').value,
+      };
 
-    let productsByCategory = {};
-
-    async function loadProducts() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      const values = data.values || [];
-
-      for (const [category, name] of values) {
-        if (!productsByCategory[category]) {
-          productsByCategory[category] = [];
-        }
-        productsByCategory[category].push(name);
-      }
+      fetch("https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.ok ? alert("Запит надіслано!") : alert("Помилка при надсиланні"))
+      .catch(() => alert("Помилка підключення"));
     }
-
-    categorySelect.addEventListener("change", () => {
-      const selected = categorySelect.value;
-      const items = productsByCategory[selected] || [];
-      productList.innerHTML = items.map(name => `<option value="${name}">`).join("");
-    });
-
-    loadProducts();
   </script>
 </body>
 </html>
