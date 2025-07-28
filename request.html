@@ -97,10 +97,10 @@
     <label for="department">Відділ</label>
     <select id="department" required>
       <option value="">Оберіть відділ</option>
-      <option>Офіс</option>
-      <option>Львів</option>
-      <option>Склад</option>
-      <option>Виробництво</option>
+      <option>ОФІС</option>
+      <option>ЛЬВІВ</option>
+      <option>СКЛАД</option>
+      <option>ВИРОБНИЦТВО</option>
     </select>
 
     <label for="category">Категорія</label>
@@ -113,8 +113,9 @@
     </select>
 
     <label for="itemName">Назва товару</label>
-    <input type="text" id="itemName" placeholder="Папір А4" required list="itemNameList">
-    <datalist id="itemNameList"></datalist>
+    <select id="itemName" required>
+      <option value="">Оберіть товар</option>
+    </select>
 
     <label for="quantity">Кількість</label>
     <input type="number" id="quantity" min="1" placeholder="Наприклад, 5" required>
@@ -148,50 +149,49 @@
       .catch(() => alert("Помилка підключення"));
     }
 
-    // Автозаповнення назв товарів по категорії
+    // Автопідтягування товарів по категорії
     const sheetId = '1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA';
     const sheetName = 'Склад забезпечення';
     const apiKey = 'AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw';
 
     const categorySelect = document.getElementById('category');
-    const itemNameInput = document.getElementById('itemName');
+    const itemNameSelect = document.getElementById('itemName');
 
     let productsByCategory = {};
 
     async function fetchProducts() {
-      const categorySelect = document.getElementById('category');
-const itemNameSelect = document.getElementById('itemName');
-let productsByCategory = {};
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
+      const res = await fetch(url);
+      const data = await res.json();
 
-async function fetchProducts() {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
-  const res = await fetch(url);
-  const data = await res.json();
+      data.values.forEach(row => {
+        if (!row || row.length < 2) return;
+        const [category, name] = row;
+        if (!category || !name) return;
 
-  data.values.forEach(([category, name]) => {
-    if (!productsByCategory[category]) {
-      productsByCategory[category] = [];
+        if (!productsByCategory[category]) {
+          productsByCategory[category] = [];
+        }
+        productsByCategory[category].push(name);
+      });
     }
-    productsByCategory[category].push(name);
-  });
-}
 
-categorySelect.addEventListener('change', () => {
-  const selected = categorySelect.value;
-  const list = productsByCategory[selected] || [];
+    categorySelect.addEventListener('change', () => {
+      const selected = categorySelect.value;
+      const list = productsByCategory[selected] || [];
 
-  itemNameSelect.innerHTML = '<option value="">Оберіть товар</option>';
-  list.forEach(name => {
-    const option = document.createElement('option');
-    option.value = name;
-    option.textContent = name;
-    itemNameSelect.appendChild(option);
-  });
+      itemNameSelect.innerHTML = '<option value="">Оберіть товар</option>';
+      list.forEach(name => {
+        const option = document.createElement('option');
+        option.value = name;
+        option.textContent = name;
+        itemNameSelect.appendChild(option);
+      });
 
-  itemNameSelect.selectedIndex = 0; // скидаємо значення при зміні категорії
-});
+      itemNameSelect.selectedIndex = 0;
+    });
 
-fetchProducts();
+    fetchProducts();
   </script>
 </body>
 </html>
