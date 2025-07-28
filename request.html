@@ -159,27 +159,39 @@
     let productsByCategory = {};
 
     async function fetchProducts() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      
-      data.values.forEach(([category, name]) => {
-        if (!productsByCategory[category]) {
-          productsByCategory[category] = [];
-        }
-        productsByCategory[category].push(name);
-      });
+      const categorySelect = document.getElementById('category');
+const itemNameSelect = document.getElementById('itemName');
+let productsByCategory = {};
+
+async function fetchProducts() {
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  data.values.forEach(([category, name]) => {
+    if (!productsByCategory[category]) {
+      productsByCategory[category] = [];
     }
+    productsByCategory[category].push(name);
+  });
+}
 
-    categorySelect.addEventListener('change', () => {
-      const selected = categorySelect.value;
-      const list = productsByCategory[selected] || [];
+categorySelect.addEventListener('change', () => {
+  const selected = categorySelect.value;
+  const list = productsByCategory[selected] || [];
 
-      const datalist = document.getElementById('itemNameList');
-      datalist.innerHTML = list.map(name => `<option value="${name}">`).join('');
-    });
+  itemNameSelect.innerHTML = '<option value="">Оберіть товар</option>';
+  list.forEach(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    itemNameSelect.appendChild(option);
+  });
 
-    fetchProducts();
+  itemNameSelect.selectedIndex = 0; // скидаємо значення при зміні категорії
+});
+
+fetchProducts();
   </script>
 </body>
 </html>
