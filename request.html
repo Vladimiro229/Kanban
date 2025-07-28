@@ -12,15 +12,16 @@
       color: #fff;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       padding: 40px 20px;
+      min-height: 100vh;
     }
 
     .form-box {
       background-color: #1c1c1c;
       border-radius: 20px;
       padding: 30px;
-      max-width: 480px;
+      max-width: 520px;
       width: 100%;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
@@ -48,25 +49,6 @@
       font-size: 14px;
       box-sizing: border-box;
       appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image: url('data:image/svg+xml;utf8,<svg fill="white" height="20" viewBox="0 0 24 24" width="20" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 16px;
-      padding-right: 40px;
-    }
-
-    input::placeholder,
-    textarea::placeholder {
-      color: #bbb;
-    }
-
-    select:focus,
-    input:focus,
-    textarea:focus {
-      outline: 2px solid #4caf50;
-      background-color: #333;
     }
 
     textarea {
@@ -74,7 +56,7 @@
       min-height: 80px;
     }
 
-    .btn {
+    .btn, .add-btn {
       width: 100%;
       margin-top: 25px;
       padding: 14px;
@@ -88,14 +70,22 @@
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .btn:hover {
+    .btn:hover, .add-btn:hover {
       transform: scale(1.03);
       box-shadow: 0 0 12px rgba(255,255,255,0.2);
     }
 
-    @media(max-width: 500px) {
-      h2 { font-size: 20px; }
-      .form-box { padding: 25px 20px; }
+    .item-card {
+      background-color: #2a2a2a;
+      border: 1px solid #444;
+      border-radius: 14px;
+      padding: 15px;
+      margin-top: 20px;
+    }
+
+    .item-card.highlight {
+      border: 2px solid #4caf50;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
     }
   </style>
 </head>
@@ -118,22 +108,9 @@
       <option>ВИРОБНИЦТВО</option>
     </select>
 
-    <label for="category">Категорія</label>
-    <select id="category" required>
-      <option value="">Оберіть категорію</option>
-      <option>Канцтовари</option>
-      <option>Господарчі засоби</option>
-      <option>Продукти загального користування</option>
-      <option>Пакувальні матеріали</option>
-    </select>
+    <div id="items-container"></div>
 
-    <label for="itemName">Назва товару</label>
-    <select id="itemName" required>
-      <option value="">Оберіть товар</option>
-    </select>
-
-    <label for="quantity">Кількість</label>
-    <input type="number" id="quantity" min="1" placeholder="Наприклад, 5" required>
+    <button type="button" class="add-btn" onclick="addItemBlock()">+ Додати товар</button>
 
     <label for="comment">Коментар</label>
     <textarea id="comment" placeholder="Додаткові деталі (необов’язково)"></textarea>
@@ -142,36 +119,10 @@
   </form>
 
   <script>
-    // Відправка форми
-    function handleSubmit(e) {
-      e.preventDefault();
-      const data = {
-        lastName: document.getElementById('lastName').value,
-        firstName: document.getElementById('firstName').value,
-        department: document.getElementById('department').value,
-        category: document.getElementById('category').value,
-        itemName: document.getElementById('itemName').value,
-        quantity: document.getElementById('quantity').value,
-        comment: document.getElementById('comment').value,
-      };
-
-      fetch("https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec", {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: { "Content-Type": "application/json" }
-      })
-      .then(res => res.ok ? alert("✅ Запит надіслано!") : alert("❌ Помилка при надсиланні"))
-      .catch(() => alert("❌ Помилка підключення"));
-    }
-
-    // Автопідтягування товарів по категорії
     const sheetId = '1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA';
     const sheetName = 'Склад забезпечення';
     const apiKey = 'AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw';
-
-    const categorySelect = document.getElementById('category');
-    const itemNameSelect = document.getElementById('itemName');
-
+    const container = document.getElementById('items-container');
     let productsByCategory = {};
 
     async function fetchProducts() {
@@ -180,31 +131,72 @@
       const data = await res.json();
 
       data.values.forEach(row => {
-        if (!row || row.length < 2) return;
         const [category, name] = row;
-        if (!category || !name) return;
-
-        if (!productsByCategory[category]) {
-          productsByCategory[category] = [];
-        }
+        if (!productsByCategory[category]) productsByCategory[category] = [];
         productsByCategory[category].push(name);
+      });
+
+      addItemBlock();
+    }
+
+    function addItemBlock() {
+      const card = document.createElement('div');
+      card.className = 'item-card highlight';
+      card.innerHTML = `
+        <label>Категорія</label>
+        <select class="category" onchange="updateItems(this)">
+          <option value="">Оберіть категорію</option>
+          ${Object.keys(productsByCategory).map(cat => `<option>${cat}</option>`).join('')}
+        </select>
+        <label>Назва товару</label>
+        <select class="item-name">
+          <option value="">Оберіть товар</option>
+        </select>
+        <label>Кількість</label>
+        <input type="number" class="quantity" placeholder="Наприклад, 5" required>
+      `;
+      container.appendChild(card);
+    }
+
+    function updateItems(select) {
+      const card = select.closest('.item-card');
+      const itemSelect = card.querySelector('.item-name');
+      const category = select.value;
+
+      const items = productsByCategory[category] || [];
+      itemSelect.innerHTML = '<option value="">Оберіть товар</option>';
+      items.forEach(name => {
+        const opt = document.createElement('option');
+        opt.value = name;
+        opt.textContent = name;
+        itemSelect.appendChild(opt);
       });
     }
 
-    categorySelect.addEventListener('change', () => {
-      const selected = categorySelect.value;
-      const list = productsByCategory[selected] || [];
+    function handleSubmit(e) {
+      e.preventDefault();
+      const items = [...document.querySelectorAll('.item-card')].map(card => ({
+        category: card.querySelector('.category').value,
+        itemName: card.querySelector('.item-name').value,
+        quantity: card.querySelector('.quantity').value
+      })).filter(i => i.category && i.itemName && i.quantity);
 
-      itemNameSelect.innerHTML = '<option value="">Оберіть товар</option>';
-      list.forEach(name => {
-        const option = document.createElement('option');
-        option.value = name;
-        option.textContent = name;
-        itemNameSelect.appendChild(option);
-      });
+      const data = {
+        lastName: document.getElementById('lastName').value,
+        firstName: document.getElementById('firstName').value,
+        department: document.getElementById('department').value,
+        comment: document.getElementById('comment').value,
+        items: items
+      };
 
-      itemNameSelect.selectedIndex = 0;
-    });
+      fetch("https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.ok ? alert("Запит надіслано!") : alert("Помилка при надсиланні"))
+      .catch(() => alert("Помилка підключення"));
+    }
 
     fetchProducts();
   </script>
