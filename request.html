@@ -12,16 +12,14 @@
       color: #fff;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
       padding: 40px 20px;
-      min-height: 100vh;
     }
 
     .form-box {
       background-color: #1c1c1c;
       border-radius: 20px;
       padding: 30px;
-      max-width: 520px;
+      max-width: 600px;
       width: 100%;
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
@@ -51,12 +49,37 @@
       appearance: none;
     }
 
-    textarea {
-      resize: vertical;
-      min-height: 80px;
+    select {
+      background-image: url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 5"><path fill="white" d="M2 0L0 2h4z"/></svg>');
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      background-size: 10px;
     }
 
-    .btn, .add-btn {
+    .item-block {
+      border: 2px solid #4caf50;
+      border-radius: 12px;
+      padding: 15px;
+      margin-top: 20px;
+      position: relative;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      background: none;
+      border: none;
+      color: #ccc;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .remove-btn:hover {
+      color: #f55;
+    }
+
+    .btn {
       width: 100%;
       margin-top: 25px;
       padding: 14px;
@@ -67,37 +90,26 @@
       cursor: pointer;
       background: linear-gradient(90deg, #4caf50, #66bb6a);
       color: white;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .btn:hover, .add-btn:hover {
-      transform: scale(1.03);
-      box-shadow: 0 0 12px rgba(255,255,255,0.2);
-    }
-
-    .item-card {
-      background-color: #2a2a2a;
-      border: 1px solid #444;
-      border-radius: 14px;
-      padding: 15px;
-      margin-top: 20px;
-    }
-
-    .item-card.highlight {
-      border: 2px solid #4caf50;
-      box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    .error {
+      font-size: 12px;
+      color: #f55;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <form class="form-box" onsubmit="handleSubmit(event)">
-    <h2>📦 Запит на забезпечення</h2>
+  <form class="form-box" onsubmit="submitForm(event)">
+    <h2>🏦 Запит на забезпечення</h2>
 
     <label for="lastName">Прізвище</label>
-    <input type="text" id="lastName" placeholder="Іванов" required>
+    <input type="text" id="lastName" required>
+    <div class="error" id="error-lastName"></div>
 
     <label for="firstName">Ім’я</label>
-    <input type="text" id="firstName" placeholder="Іван" required>
+    <input type="text" id="firstName" required>
+    <div class="error" id="error-firstName"></div>
 
     <label for="department">Відділ</label>
     <select id="department" required>
@@ -107,86 +119,108 @@
       <option>СКЛАД</option>
       <option>ВИРОБНИЦТВО</option>
     </select>
+    <div class="error" id="error-department"></div>
 
     <div id="items-container"></div>
 
-    <button type="button" class="add-btn" onclick="addItemBlock()">+ Додати товар</button>
-
-    <label for="comment">Коментар</label>
-    <textarea id="comment" placeholder="Додаткові деталі (необов’язково)"></textarea>
-
-    <button type="submit" class="btn">📬 Надіслати запит</button>
+    <button type="button" class="btn" onclick="addItem()">+ Додати товар</button>
+    <button type="submit" class="btn">📨 Надіслати запит</button>
   </form>
 
   <script>
-    const sheetId = '1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA';
-    const sheetName = 'Склад забезпечення';
-    const apiKey = 'AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw';
-    const container = document.getElementById('items-container');
+    const itemsContainer = document.getElementById('items-container');
     let productsByCategory = {};
+    let itemCount = 0;
 
     async function fetchProducts() {
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${sheetName}!A2:B1000?key=${apiKey}`;
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/1_Lr6Sv2IdC6M2-Dc7lpE7SgvXVkEeaFaV3axMSI-bfA/values/Склад забезпечення!A2:B1000?key=AIzaSyB2l87TIEyJwO1BMDkE_IHMaXG6k2N3rEw`;
       const res = await fetch(url);
       const data = await res.json();
-
-      data.values.forEach(row => {
-        const [category, name] = row;
+      data.values.forEach(([category, name]) => {
         if (!productsByCategory[category]) productsByCategory[category] = [];
         productsByCategory[category].push(name);
       });
-
-      addItemBlock();
+      addItem();
     }
 
-    function addItemBlock() {
-      const card = document.createElement('div');
-      card.className = 'item-card highlight';
-      card.innerHTML = `
+    function addItem() {
+      itemCount++;
+      const wrapper = document.createElement('div');
+      wrapper.className = 'item-block';
+      wrapper.innerHTML = `
+        ${itemCount > 1 ? '<button type="button" class="remove-btn" onclick="this.parentNode.remove()">&times;</button>' : ''}
         <label>Категорія</label>
-        <select class="category" onchange="updateItems(this)">
+        <select onchange="loadItems(this)" required>
           <option value="">Оберіть категорію</option>
           ${Object.keys(productsByCategory).map(cat => `<option>${cat}</option>`).join('')}
         </select>
+        <div class="error"></div>
+
         <label>Назва товару</label>
-        <select class="item-name">
-          <option value="">Оберіть товар</option>
-        </select>
+        <select required><option value="">Оберіть товар</option></select>
+        <div class="error"></div>
+
         <label>Кількість</label>
-        <input type="number" class="quantity" placeholder="Наприклад, 5" required>
+        <input type="number" min="1" placeholder="Наприклад, 5" required>
+        <div class="error"></div>
       `;
-      container.appendChild(card);
+      itemsContainer.appendChild(wrapper);
     }
 
-    function updateItems(select) {
-      const card = select.closest('.item-card');
-      const itemSelect = card.querySelector('.item-name');
+    function loadItems(select) {
       const category = select.value;
-
-      const items = productsByCategory[category] || [];
+      const itemSelect = select.parentNode.querySelectorAll('select')[1];
       itemSelect.innerHTML = '<option value="">Оберіть товар</option>';
-      items.forEach(name => {
+      (productsByCategory[category] || []).forEach(name => {
         const opt = document.createElement('option');
-        opt.value = name;
         opt.textContent = name;
         itemSelect.appendChild(opt);
       });
     }
 
-    function handleSubmit(e) {
+    function submitForm(e) {
       e.preventDefault();
-      const items = [...document.querySelectorAll('.item-card')].map(card => ({
-        category: card.querySelector('.category').value,
-        itemName: card.querySelector('.item-name').value,
-        quantity: card.querySelector('.quantity').value
-      })).filter(i => i.category && i.itemName && i.quantity);
+      let valid = true;
+
+      const lastName = document.getElementById('lastName');
+      const firstName = document.getElementById('firstName');
+      const department = document.getElementById('department');
+
+      [lastName, firstName, department].forEach(el => {
+        const err = document.getElementById('error-' + el.id);
+        if (!el.value.trim()) {
+          err.textContent = 'Це поле обов’язкове';
+          valid = false;
+        } else {
+          err.textContent = '';
+        }
+      });
+
+      itemsContainer.querySelectorAll('.item-block').forEach(block => {
+        const selects = block.querySelectorAll('select');
+        const quantity = block.querySelector('input');
+        const errors = block.querySelectorAll('.error');
+
+        if (!selects[0].value) { errors[0].textContent = 'Оберіть категорію'; valid = false; } else { errors[0].textContent = ''; }
+        if (!selects[1].value) { errors[1].textContent = 'Оберіть товар'; valid = false; } else { errors[1].textContent = ''; }
+        if (!quantity.value) { errors[2].textContent = 'Вкажіть кількість'; valid = false; } else { errors[2].textContent = ''; }
+      });
+
+      if (!valid) return;
 
       const data = {
-        lastName: document.getElementById('lastName').value,
-        firstName: document.getElementById('firstName').value,
-        department: document.getElementById('department').value,
-        comment: document.getElementById('comment').value,
-        items: items
+        lastName: lastName.value,
+        firstName: firstName.value,
+        department: department.value,
+        items: Array.from(itemsContainer.querySelectorAll('.item-block')).map(block => {
+          const selects = block.querySelectorAll('select');
+          const quantity = block.querySelector('input');
+          return {
+            category: selects[0].value,
+            itemName: selects[1].value,
+            quantity: quantity.value
+          };
+        })
       };
 
       fetch("https://script.google.com/macros/s/AKfycbwyt5DdOkrg3lhUGHXbGcScwRTJWWUvXo79qcjdTtK1I8SmER94ChT42X_h-z5OYAtEtg/exec", {
